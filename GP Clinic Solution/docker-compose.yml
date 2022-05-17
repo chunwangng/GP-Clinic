@@ -1,0 +1,140 @@
+version: "3.8"
+
+volumes:
+  rabbitmq_data:
+ 
+services:
+ 
+  ####################################
+  # RabbitMQ: The messaging broker   
+  ####################################
+  rabbitmq:
+    image: rabbitmq:3-management
+    hostname: esd-rabbit
+    restart: always
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes: 
+      - rabbitmq_data:/var/lib/rabbitmq       
+      
+  #################################
+  # Staff: The Staff microservice
+  #################################
+  staff:
+    build: 
+      context: ./staff/
+      dockerfile: staff.Dockerfile
+    image: gohweijie/staff:1.0
+    restart: always
+    environment:
+      dbURL: mysql+mysqlconnector://is213@host.docker.internal:3306/is213_staff
+      PYTHONUNBUFFERED: 1
+    ports:
+    - "5002:5002"
+
+  #################################
+  # Patient: The Patient microservice
+  #################################
+  patient:
+    build: 
+      context: ./patient/
+      dockerfile: patient.Dockerfile
+    image: gohweijie/patient:1.0
+    restart: always
+    environment:
+      dbURL: mysql+mysqlconnector://is213@host.docker.internal:3306/is213_patient
+      PYTHONUNBUFFERED: 1
+    ports:
+    - "5001:5001"
+
+  #################################
+  # Authenticate: The Authenticate microservice
+  #################################
+  authenticate:
+    build: 
+      context: ./twilio_otp/venv/
+      dockerfile: authenticate.Dockerfile
+    image: gohweijie/twilio_otp:1.0
+    restart: always
+    environment:       
+      PYTHONUNBUFFERED: 1
+    ports:
+    - "7000:7000"   
+
+  #################################
+  # Doctor: The Doctor microservice
+  #################################
+  doctor:
+    build: 
+      context: ./doctor/
+      dockerfile: doctor.Dockerfile
+    image: gohweijie/doctor:1.0
+    restart: always
+    environment:
+      dbURL: mysql+mysqlconnector://is213@host.docker.internal:3306/is213_doctor
+      PYTHONUNBUFFERED: 1
+    ports:
+    - "5006:5006"
+
+  #################################
+  # Medication Info: The Medication Info microservice
+  #################################
+  medication_info:
+    build: 
+      context: ./medication_info/
+      dockerfile: medication_info.Dockerfile
+    image: gohweijie/medication_info:1.0
+    restart: always
+    environment:
+      dbURL: mysql+mysqlconnector://is213@host.docker.internal:3306/is213_medication_info
+      PYTHONUNBUFFERED: 1
+    ports:
+    - "5004:5004"
+
+  #################################
+  # Payment: The Payment microservice
+  #################################
+  payment:
+    build: 
+      context: ./payment/
+      dockerfile: payment.Dockerfile
+    image: gohweijie/payment:1.0
+    restart: always
+    environment:
+      dbURL: mysql+mysqlconnector://is213@host.docker.internal:3306/is213_payment_log
+      PYTHONUNBUFFERED: 1
+    ports:
+    - "4242:4242" 
+
+  #################################
+  # Prescription: The Prescription microservice
+  #################################
+  prescription: 
+    build: 
+      context: ./prescription/
+      dockerfile: prescription.Dockerfile
+    image: gohweijie/prescription:1.0
+    restart: always
+    environment:
+      dbURL: mysql+mysqlconnector://is213@host.docker.internal:3306/is213_prescription
+      PYTHONUNBUFFERED: 1
+    ports:
+    - "5003:5003"
+
+  #################################
+  # Appointment: The Appointment microservice
+  #################################
+  appointment: 
+    build: 
+      context: ./appointment/
+      dockerfile: appointment.Dockerfile
+    image: gohweijie/appointment:1.0
+    restart: always
+    environment:
+      dbURL: mysql+mysqlconnector://is213@host.docker.internal:3306/is213_appointment
+      rabbit_host: rabbitmq
+      rabbit_port: 5672
+      PYTHONUNBUFFERED: 1
+    ports:
+    - "5007:5007"

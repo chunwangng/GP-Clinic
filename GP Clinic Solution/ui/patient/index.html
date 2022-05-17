@@ -1,0 +1,88 @@
+<head>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  <style>
+    #index .signup{
+      background: #f5f5dc;
+      padding: 4% 18%;
+    }
+    #index button {
+      margin-top: 2%;
+    }
+  /* Disable default input=number scrollbox  */
+  /* Chrome, Safari, Edge, Opera */
+  input::-webkit-outer-spin-button,
+  input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  /* Firefox */
+  input[type=number] {
+    -moz-appearance: textfield;
+  }
+  </style>
+</head>
+
+<body id="index">
+  <div class="container">
+      <div class="row">
+          <div class="col-sm-12">
+              <p class="h2">Welcome to clinic webapp</p>
+          </div>
+      </div>
+      <div class="row signup"> 
+          <h2>Signup to clinic app</h2>
+          <form method="post" action="#">  
+              <label for="name">Name</label>
+              <input type="text" class="form-control" id="name" placeholder="Enter your full name" aria-label="name" aria-describedby="name"><br/>
+              <label for="age">Age</label>
+              <input type="number" class="form-control" id="age" placeholder="Enter your age" aria-label="age" aria-describedby="age"><br/>
+              <label for="phone_number">Phone number</label>
+              <input type="number" class="form-control" id="phone_number" placeholder="Enter your Singapore phone number" aria-label="phone_number" aria-describedby="phone_number"><br/>
+              
+              <button type="button" class="btn btn-warning" id="add">Signup</button> 
+              <button type="button" class="btn btn-info" onclick="window.location='http://localhost:7000/generate'">Patient Login</button>
+            <!-- <input type="submit" name="delete" value="Delete" id="delete"> -->
+          </form>
+      </div>
+      <button type="button" class="btn btn-success pull-right" onclick="window.location='../staff/staff_login.html'">Staff Login</button>
+  </div>
+  
+  
+  
+</body>
+
+<script>
+  document.getElementById("add").addEventListener("click", function(event){
+  event.preventDefault();
+  age = document.getElementById("age").value;
+  name = document.getElementById("name").value;
+  phone = document.getElementById("phone_number").value;
+
+  var xhr = new XMLHttpRequest();
+  xhr.open("POST", 'http://host.docker.internal:5001/patient/add', true);
+
+  //Send the proper header information along with the request
+  xhr.setRequestHeader('Content-Type', 'application/json');
+
+  xhr.onreadystatechange = function() { // Call a function when the state changes.
+    if (this.readyState === XMLHttpRequest.DONE && this.status === 201) {
+        // Request finished. Do processing here.
+        alert("Successful account creation. Please proceed to login.")
+        // console.log("success. entry recorded")
+    } else if (this.readyState === XMLHttpRequest.DONE && this.status === 500) {
+        alert("An error occurred creating the profile. Phone number already exists in the system")
+    }         
+  }
+  body = JSON.stringify({
+  //   "id": "1",
+    "name": name,
+    "age": age,
+    "phone": phone
+  });
+  console.log(body);
+  xhr.send(body);
+  });
+
+</script>
